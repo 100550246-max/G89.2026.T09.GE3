@@ -17,45 +17,45 @@ class EnterpriseManager:
         pass
 
     @staticmethod
-    def validate_cif(c: str):
+    def validate_cif(cif: str):
         """validates a cif number """
-        if not isinstance(c, str):
+        if not isinstance(cif, str):
             raise EnterpriseManagementException("CIF code must be a string")
-        p = re.compile(r"^[ABCDEFGHJKNPQRSUVW]\d{7}[0-9A-J]$")
-        if not p.fullmatch(c):
+        pattern = re.compile(r"^[ABCDEFGHJKNPQRSUVW]\d{7}[0-9A-J]$")
+        if not pattern.fullmatch(cif):
             raise EnterpriseManagementException("Invalid CIF format")
 
-        l = c[0]
-        n = c[1:8]
-        u = c[8]
+        cif_letter = cif[0]
+        cif_block_number = cif[1:8]
+        cif_unit = cif[8]
 
-        s1 = 0
-        s2 = 0
+        even_position_sum = 0
+        odd_position_sum = 0
 
-        for i in range(len(n)):
-            if i % 2 == 0:
-                x = int(n[i]) * 2
-                if x > 9:
-                    s1 = s1 + (x // 10) + (x % 10)
+        for position in range(len(cif_block_number)):
+            if position % 2 == 0:
+                double_value = int(cif_block_number[position]) * 2
+                if double_value > 9:
+                    even_position_sum = even_position_sum + (double_value // 10) + (double_value % 10)
                 else:
-                    s1 = s1 + x
+                    even_position_sum = even_position_sum + double_value
             else:
-                s2 = s2 + int(n[i])
+                odd_position_sum = odd_position_sum + int(cif_block_number[position])
 
-        t = s1 + s2
-        u2 = t % 10
-        r = 10 - u2
+        total_sum = even_position_sum + odd_position_sum
+        unit_total_sum = total_sum % 10
+        base_digit = 10 - unit_total_sum
 
-        if r == 10:
-            r = 0
+        if base_digit == 10:
+            base_digit = 0
 
-        dic = "JABCDEFGHI"
+        control_characters = "JABCDEFGHI"
 
-        if l in ('A', 'B', 'E', 'H'):
-            if str(r) != u:
+        if cif_letter in ('A', 'B', 'E', 'H'):
+            if str(base_digit) != cif_unit:
                 raise EnterpriseManagementException("Invalid CIF character control number")
-        elif l in ('P', 'Q', 'S', 'K'):
-            if dic[r] != u:
+        elif cif_letter in ('P', 'Q', 'S', 'K'):
+            if control_characters[base_digit] != cif_unit:
                 raise EnterpriseManagementException("Invalid CIF character control letter")
         else:
             raise EnterpriseManagementException("CIF type not supported")
