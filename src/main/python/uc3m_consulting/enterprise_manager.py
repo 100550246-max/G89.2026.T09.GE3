@@ -64,9 +64,9 @@ class EnterpriseManager:
     def validate_starting_date(self, starting_date):
         """validates the  date format  using regex"""
         date_format = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
-        validate_format = date_format.fullmatch(starting_date)
+        valid_date_format = date_format.fullmatch(starting_date)
 
-        if not validate_format:
+        if not valid_date_format:
             raise EnterpriseManagementException("Invalid date format")
 
         try:
@@ -88,36 +88,37 @@ class EnterpriseManager:
                          department: str,
                          date: str,
                          budget: str):
+
         """registers a new project"""
         self.validate_cif(company_cif)
-        mr = re.compile(r"^[a-zA-Z0-9]{5,10}")
-        res = mr.fullmatch(project_acronym)
-        if not res:
+        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}")
+        valid_acronym = acronym_pattern.fullmatch(project_acronym)
+        if not valid_acronym:
             raise EnterpriseManagementException("Invalid acronym")
-        md = re.compile(r"^.{10,30}$")
-        res = md.fullmatch(project_description)
-        if not res:
+        description_pattern = re.compile(r"^.{10,30}$")
+        valid_description = description_pattern.fullmatch(project_description)
+        if not valid_description:
             raise EnterpriseManagementException("Invalid description format")
 
-        mr = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
-        res = mr.fullmatch(department)
-        if not res:
+        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
+        valid_department = department_pattern.fullmatch(department)
+        if not valid_department:
             raise EnterpriseManagementException("Invalid department")
 
         self.validate_starting_date(date)
 
         try:
-            f_bdgt  = float(budget)
+            float_budget  = float(budget)
         except ValueError as exc:
             raise EnterpriseManagementException("Invalid budget amount") from exc
 
-        n_str = str(f_bdgt)
-        if '.' in n_str:
-            decimales = len(n_str.split('.')[1])
-            if decimales > 2:
+        float_budget_string = str(float_budget)
+        if '.' in float_budget_string:
+            decimals = len(float_budget_string.split('.')[1])
+            if decimals > 2:
                 raise EnterpriseManagementException("Invalid budget amount")
 
-        if f_bdgt < 50000 or f_bdgt > 1000000:
+        if float_budget < 50000 or float_budget > 1000000:
             raise EnterpriseManagementException("Invalid budget amount")
 
 
@@ -130,21 +131,21 @@ class EnterpriseManager:
 
         try:
             with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                t_l = json.load(file)
+                transfer_list = json.load(file)
         except FileNotFoundError:
-            t_l = []
+            transfer_list = []
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
 
-        for t_i in t_l:
-            if t_i == new_project.to_json():
+        for transfer_item in transfer_list:
+            if transfer_item == new_project.to_json():
                 raise EnterpriseManagementException("Duplicated project in projects list")
 
-        t_l.append(new_project.to_json())
+        transfer_list.append(new_project.to_json())
 
         try:
             with open(PROJECTS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(t_l, file, indent=2)
+                json.dump(transfer_list, file, indent=2)
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
         except json.JSONDecodeError as ex:
