@@ -159,6 +159,8 @@ class EnterpriseManager:
 
         self.write_json_store(PROJECTS_STORE_FILE, transfer_list)
 
+        return new_project.project_id
+
 
     def find_docs(self, date_str):
         """
@@ -187,13 +189,8 @@ class EnterpriseManager:
         except ValueError as ex:
             raise EnterpriseManagementException("Invalid date format") from ex
 
-
         # open documents
-        try:
-            with open(TEST_DOCUMENTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                document_list = json.load(file)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
+        document_list = self.read_json_store(TEST_DOCUMENTS_STORE_FILE, empty_if_missing=False)
 
 
         documents_count = 0
@@ -226,13 +223,9 @@ class EnterpriseManager:
              "Numfiles": documents_count
              }
 
-        try:
-            with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                report_list = json.load(file)
-        except FileNotFoundError:
-            report_list = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        report_list = self.read_json_store(TEST_NUMDOCS_STORE_FILE, empty_if_missing=True)
         report_list.append(report_data)
 
         self.write_json_store(TEST_NUMDOCS_STORE_FILE, report_list)
+
+        return documents_count
