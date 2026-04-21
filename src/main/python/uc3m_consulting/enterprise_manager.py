@@ -37,8 +37,6 @@ class EnterpriseManager:
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
 
-    @staticmethod
-
     def validate_starting_date(self, starting_date):
         """validates the  date format  using regex"""
         date_format = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
@@ -59,6 +57,11 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Invalid date format")
         return starting_date
 
+    @staticmethod
+    def validate_cif(cif:str):
+        Cif(cif)
+        return True
+
     def validate_acronym(self, project_acronym:str):
         """"Validates the project cronym format."""
 
@@ -66,7 +69,7 @@ class EnterpriseManager:
         if not acronym_pattern.fullmatch(project_acronym):
             raise EnterpriseManagementException("Invalid acronym")
 
-    def validate_description(selfself, project_description:str):
+    def validate_description(self, project_description:str):
         """"validates the project description format."""
         description_pattern = re.compile(r"^.{10,30}$")
         if not description_pattern.fullmatch(project_description):
@@ -107,7 +110,7 @@ class EnterpriseManager:
         """registers a new project"""
 
         # Validations:
-        Cif(company_cif)
+        self.validate_cif(company_cif)
         self.validate_acronym(project_acronym)
         self.validate_description(project_description)
         self.validate_department(department)
