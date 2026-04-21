@@ -100,6 +100,21 @@ class EnterpriseManager:
         if my_date.year < 2025 or my_date.year > 2050:
             raise EnterpriseManagementException("Invalid date format")
         return starting_date
+
+    def validate_acronym(self, project_acronym:str):
+        """"Validates the project cronym format."""
+
+        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}$")
+        if not acronym_pattern.fullmatch(project_acronym):
+            raise EnterpriseManagementException("Invalid acronym")
+
+    def validate_description(selfself, project_description:str):
+        """"validates the project description format."""
+        description_pattern = re.compile(r"^.{10,30}$")
+        if not description_pattern.fullmatch(project_description):
+            raise EnterpriseManagementException("Invalid description format")
+
+
     #pylint: disable=too-many-arguments, too-many-positional-arguments
     def register_project(self,
                          company_cif: str,
@@ -110,15 +125,11 @@ class EnterpriseManager:
                          budget: str):
 
         """registers a new project"""
+
+        # Validations:
         self.validate_cif(company_cif)
-        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}")
-        valid_acronym = acronym_pattern.fullmatch(project_acronym)
-        if not valid_acronym:
-            raise EnterpriseManagementException("Invalid acronym")
-        description_pattern = re.compile(r"^.{10,30}$")
-        valid_description = description_pattern.fullmatch(project_description)
-        if not valid_description:
-            raise EnterpriseManagementException("Invalid description format")
+        self.validate_acronym(project_acronym)
+        self.validate_description(project_description)
 
         department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
         valid_department = department_pattern.fullmatch(department)
