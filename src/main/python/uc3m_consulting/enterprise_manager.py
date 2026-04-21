@@ -14,32 +14,13 @@ from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
                                                        TEST_DOCUMENTS_STORE_FILE,
                                                        TEST_NUMDOCS_STORE_FILE)
 from uc3m_consulting.project_document import ProjectDocument
+from uc3m_consulting.storage.json_store import JsonStore
 
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
     def __init__(self):
         pass
-
-    def read_json_store(self, file_path: str, empty_if_missing: bool = False):
-        """Reads a JSON file and returns his content. Extracted for avoiding duplicated code."""
-        try:
-            with open(file_path, "r", encoding="utf-8", newline="") as file:
-                return json.load(file)
-        except FileNotFoundError as ex:
-            if empty_if_missing:
-                return []
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-
-    def write_json_store(self, file_path: str, data_list: list):
-        """Writes a data list in a JSON file. Extracted for avoiding duplicated code."""
-        try:
-            with open(file_path, "w", encoding="utf-8", newline="") as file:
-                json.dump(data_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
 
     #pylint: disable=too-many-arguments, too-many-positional-arguments
     def register_project(self,
@@ -59,7 +40,8 @@ class EnterpriseManager:
                                         starting_date=date,
                                         project_budget=budget)
 
-        transfer_list = self.read_json_store(PROJECTS_STORE_FILE, empty_if_missing=True)
+        json_store = JsonStore()
+        transfer_list = json_store.load_list(PROJECTS_STORE_FILE, empty_if_missing=True)
 
         for transfer_item in transfer_list:
             if transfer_item == new_project.to_json():
@@ -67,7 +49,7 @@ class EnterpriseManager:
 
         transfer_list.append(new_project.to_json())
 
-        self.write_json_store(PROJECTS_STORE_FILE, transfer_list)
+        json_store.save_list(PROJECTS_STORE_FILE, transfer_list)
 
         return new_project.project_id
 
@@ -100,7 +82,8 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Invalid date format") from ex
 
         # open documents
-        document_list = self.read_json_store(TEST_DOCUMENTS_STORE_FILE, empty_if_missing=False)
+        json_store = JsonStore()
+        document_list = json_store.load_list(TEST_DOCUMENTS_STORE_FILE, empty_if_missing=False)
 
 
         documents_count = 0
@@ -133,9 +116,9 @@ class EnterpriseManager:
              "Numfiles": documents_count
              }
 
-        report_list = self.read_json_store(TEST_NUMDOCS_STORE_FILE, empty_if_missing=True)
+        report_list = json_store.load_list(TEST_NUMDOCS_STORE_FILE, empty_if_missing=True)
         report_list.append(report_data)
 
-        self.write_json_store(TEST_NUMDOCS_STORE_FILE, report_list)
+        json_store.save_list(TEST_NUMDOCS_STORE_FILE, report_list)
 
         return documents_count
