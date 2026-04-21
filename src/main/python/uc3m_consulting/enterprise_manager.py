@@ -65,7 +65,7 @@ class EnterpriseManager:
         Cif(cif)
         return True
 
-    def validate_acronym(project_acronym:str):
+    def validate_acronym(self, project_acronym:str):
         Acronym(project_acronym)
         return True
 
