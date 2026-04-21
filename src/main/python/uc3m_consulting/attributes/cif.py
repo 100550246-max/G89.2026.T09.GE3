@@ -4,7 +4,7 @@ from uc3m_consulting.enterprise_management_exception import EnterpriseManagement
 from uc3m_consulting.attributes.attribute import Attribute
 
 class Cif(Attribute):
-    """Clase que representa y valida un CIF."""
+    """Class that represents and validates a Cif."""
 
     def _validate(self, value: str):
         if not isinstance(value, str):

@@ -4,6 +4,8 @@ import json
 
 from datetime import datetime, timezone
 from freezegun import freeze_time
+
+from uc3m_consulting.attributes.acronym import Acronym
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
@@ -11,6 +13,7 @@ from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
                                                        TEST_NUMDOCS_STORE_FILE)
 from uc3m_consulting.project_document import ProjectDocument
 from uc3m_consulting.attributes.cif import Cif
+from uc3m_consulting.attributes.acronym import Acronym
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
@@ -62,12 +65,9 @@ class EnterpriseManager:
         Cif(cif)
         return True
 
-    def validate_acronym(self, project_acronym:str):
-        """"Validates the project cronym format."""
-
-        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}$")
-        if not acronym_pattern.fullmatch(project_acronym):
-            raise EnterpriseManagementException("Invalid acronym")
+    def validate_acronym(project_acronym:str):
+        Acronym(project_acronym)
+        return True
 
     def validate_description(self, project_description:str):
         """"validates the project description format."""
