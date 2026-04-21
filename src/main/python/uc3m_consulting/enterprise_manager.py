@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from freezegun import freeze_time
 
 from uc3m_consulting.attributes.acronym import Acronym
+from uc3m_consulting.attributes.department import Department
 from uc3m_consulting.attributes.description import Description
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
@@ -15,6 +16,8 @@ from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
 from uc3m_consulting.project_document import ProjectDocument
 from uc3m_consulting.attributes.cif import Cif
 from uc3m_consulting.attributes.acronym import Acronym
+from uc3m_consulting.attributes.department import Department
+from uc3m_consulting.attributes.description import Description
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
@@ -75,10 +78,8 @@ class EnterpriseManager:
         return True
 
     def validate_department(self, department: str):
-        """Validates the department name."""
-        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
-        if not department_pattern.fullmatch(department):
-            raise EnterpriseManagementException("Invalid department")
+        Department(department)
+        return True
 
     def validate_budget(self, budget: str):
         """Validates the project budget amount and format."""
