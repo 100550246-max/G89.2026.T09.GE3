@@ -18,6 +18,7 @@ from uc3m_consulting.attributes.cif import Cif
 from uc3m_consulting.attributes.acronym import Acronym
 from uc3m_consulting.attributes.department import Department
 from uc3m_consulting.attributes.description import Description
+from uc3m_consulting.attributes.budget import Budget
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
@@ -82,21 +83,8 @@ class EnterpriseManager:
         return True
 
     def validate_budget(self, budget: str):
-        """Validates the project budget amount and format."""
-        try:
-            float_budget = float(budget)
-        except ValueError as exc:
-            raise EnterpriseManagementException("Invalid budget amount") from exc
-
-        float_budget_string = str(float_budget)
-        if '.' in float_budget_string:
-            decimals = len(float_budget_string.split('.')[1])
-            if decimals > 2:
-                raise EnterpriseManagementException("Invalid budget amount")
-
-        if float_budget < 50000 or float_budget > 1000000:
-            raise EnterpriseManagementException("Invalid budget amount")
-
+        Budget(budget)
+        return True
 
     #pylint: disable=too-many-arguments, too-many-positional-arguments
     def register_project(self,
