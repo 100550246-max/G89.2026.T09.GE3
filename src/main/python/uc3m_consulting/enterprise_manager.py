@@ -16,6 +16,18 @@ class EnterpriseManager:
     def __init__(self):
         pass
 
+    def read_json_store(self, file_path: str, empty_if_missing: bool = False):
+        """Lee un archivo JSON y devuelve su contenido. Extraído para evitar código duplicado."""
+        try:
+            with open(file_path, "r", encoding="utf-8", newline="") as file:
+                return json.load(file)
+        except FileNotFoundError as ex:
+            if empty_if_missing:
+                return []
+            raise EnterpriseManagementException("Wrong file  or file path") from ex
+        except json.JSONDecodeError as ex:
+            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+
     @staticmethod
     def validate_cif(cif: str):
         """validates a cif number """
@@ -129,13 +141,7 @@ class EnterpriseManager:
                                         starting_date=date,
                                         project_budget=budget)
 
-        try:
-            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                transfer_list = json.load(file)
-        except FileNotFoundError:
-            transfer_list = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        transfer_list = self.read_json_store(PROJECTS_STORE_FILE, empty_if_missing=True)
 
         for transfer_item in transfer_list:
             if transfer_item == new_project.to_json():
