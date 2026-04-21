@@ -17,7 +17,7 @@ class EnterpriseManager:
         pass
 
     def read_json_store(self, file_path: str, empty_if_missing: bool = False):
-        """Lee un archivo JSON y devuelve su contenido. Extraído para evitar código duplicado."""
+        """Reads a JSON file and returns his content. Extracted for avoiding duplicated code."""
         try:
             with open(file_path, "r", encoding="utf-8", newline="") as file:
                 return json.load(file)
@@ -27,6 +27,14 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+
+    def write_json_store(self, file_path: str, data_list: list):
+        """Writes a data list in a JSON file. Extracted for avoiding duplicated code."""
+        try:
+            with open(file_path, "w", encoding="utf-8", newline="") as file:
+                json.dump(data_list, file, indent=2)
+        except FileNotFoundError as ex:
+            raise EnterpriseManagementException("Wrong file  or file path") from ex
 
     @staticmethod
     def validate_cif(cif: str):
@@ -149,14 +157,7 @@ class EnterpriseManager:
 
         transfer_list.append(new_project.to_json())
 
-        try:
-            with open(PROJECTS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(transfer_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
-        return new_project.project_id
+        self.write_json_store(PROJECTS_STORE_FILE, transfer_list)
 
 
     def find_docs(self, date_str):
@@ -233,9 +234,5 @@ class EnterpriseManager:
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
         report_list.append(report_data)
-        try:
-            with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(report_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-        return documents_count
+
+        self.write_json_store(TEST_NUMDOCS_STORE_FILE, report_list)
