@@ -19,6 +19,7 @@ from uc3m_consulting.attributes.acronym import Acronym
 from uc3m_consulting.attributes.department import Department
 from uc3m_consulting.attributes.description import Description
 from uc3m_consulting.attributes.budget import Budget
+from uc3m_consulting.attributes.starting_date import StartingDate
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
@@ -46,23 +47,7 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
 
     def validate_starting_date(self, starting_date):
-        """validates the  date format  using regex"""
-        date_format = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
-        valid_date_format = date_format.fullmatch(starting_date)
-
-        if not valid_date_format:
-            raise EnterpriseManagementException("Invalid date format")
-
-        try:
-            my_date = datetime.strptime(starting_date, "%d/%m/%Y").date()
-        except ValueError as ex:
-            raise EnterpriseManagementException("Invalid date format") from ex
-
-        if my_date < datetime.now(timezone.utc).date():
-            raise EnterpriseManagementException("Project's date must be today or later.")
-
-        if my_date.year < 2025 or my_date.year > 2050:
-            raise EnterpriseManagementException("Invalid date format")
+        StartingDate(starting_date)
         return starting_date
 
     @staticmethod
