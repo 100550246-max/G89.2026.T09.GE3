@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from freezegun import freeze_time
 
 from uc3m_consulting.attributes.acronym import Acronym
+from uc3m_consulting.attributes.description import Description
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
@@ -70,10 +71,8 @@ class EnterpriseManager:
         return True
 
     def validate_description(self, project_description:str):
-        """"validates the project description format."""
-        description_pattern = re.compile(r"^.{10,30}$")
-        if not description_pattern.fullmatch(project_description):
-            raise EnterpriseManagementException("Invalid description format")
+        Description(project_description)
+        return True
 
     def validate_department(self, department: str):
         """Validates the department name."""
