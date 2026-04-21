@@ -10,6 +10,7 @@ from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
                                                        TEST_DOCUMENTS_STORE_FILE,
                                                        TEST_NUMDOCS_STORE_FILE)
 from uc3m_consulting.project_document import ProjectDocument
+from uc3m_consulting.attributes.cif import Cif
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
@@ -37,49 +38,6 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
 
     @staticmethod
-    def validate_cif(cif: str):
-        """validates a cif number """
-        if not isinstance(cif, str):
-            raise EnterpriseManagementException("CIF code must be a string")
-        pattern = re.compile(r"^[ABCDEFGHJKNPQRSUVW]\d{7}[0-9A-J]$")
-        if not pattern.fullmatch(cif):
-            raise EnterpriseManagementException("Invalid CIF format")
-
-        cif_letter = cif[0]
-        cif_block_number = cif[1:8]
-        cif_unit = cif[8]
-
-        even_position_sum = 0
-        odd_position_sum = 0
-
-        for position in range(len(cif_block_number)):
-            if position % 2 == 0:
-                double_value = int(cif_block_number[position]) * 2
-                if double_value > 9:
-                    even_position_sum = even_position_sum + (double_value // 10) + (double_value % 10)
-                else:
-                    even_position_sum = even_position_sum + double_value
-            else:
-                odd_position_sum = odd_position_sum + int(cif_block_number[position])
-
-        total_sum = even_position_sum + odd_position_sum
-        unit_total_sum = total_sum % 10
-        base_digit = 10 - unit_total_sum
-
-        if base_digit == 10:
-            base_digit = 0
-
-        control_characters = "JABCDEFGHI"
-
-        if cif_letter in ('A', 'B', 'E', 'H'):
-            if str(base_digit) != cif_unit:
-                raise EnterpriseManagementException("Invalid CIF character control number")
-        elif cif_letter in ('P', 'Q', 'S', 'K'):
-            if control_characters[base_digit] != cif_unit:
-                raise EnterpriseManagementException("Invalid CIF character control letter")
-        else:
-            raise EnterpriseManagementException("CIF type not supported")
-        return True
 
     def validate_starting_date(self, starting_date):
         """validates the  date format  using regex"""
@@ -127,7 +85,7 @@ class EnterpriseManager:
         """registers a new project"""
 
         # Validations:
-        self.validate_cif(company_cif)
+        Cif(company_cif)
         self.validate_acronym(project_acronym)
         self.validate_description(project_description)
 
