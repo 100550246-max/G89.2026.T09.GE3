@@ -1,11 +1,18 @@
 """Contains the class OrderShipping"""
 from datetime import datetime, timezone
 import hashlib
+from uc3m_consulting.attributes.project_id import ProjectId
+from uc3m_consulting.attributes.file_name import FileName
 
 class ProjectDocument():
     """Class representing the information required for shipping of an order"""
 
     def __init__(self, project_id: str, file_name):
+        # Autovalidation:
+        ProjectId(project_id)
+        FileName(file_name)
+
+        # Assigment:
         self.__alg = "SHA-256"
         self.__type = "PDF"
         self.__project_id = project_id

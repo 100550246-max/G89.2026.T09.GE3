@@ -14,12 +14,7 @@ from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
                                                        TEST_DOCUMENTS_STORE_FILE,
                                                        TEST_NUMDOCS_STORE_FILE)
 from uc3m_consulting.project_document import ProjectDocument
-from uc3m_consulting.attributes.cif import Cif
-from uc3m_consulting.attributes.acronym import Acronym
-from uc3m_consulting.attributes.department import Department
-from uc3m_consulting.attributes.description import Description
-from uc3m_consulting.attributes.budget import Budget
-from uc3m_consulting.attributes.starting_date import StartingDate
+
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
@@ -46,31 +41,6 @@ class EnterpriseManager:
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
 
-    def validate_starting_date(self, starting_date):
-        StartingDate(starting_date)
-        return starting_date
-
-    @staticmethod
-    def validate_cif(cif:str):
-        Cif(cif)
-        return True
-
-    def validate_acronym(self, project_acronym:str):
-        Acronym(project_acronym)
-        return True
-
-    def validate_description(self, project_description:str):
-        Description(project_description)
-        return True
-
-    def validate_department(self, department: str):
-        Department(department)
-        return True
-
-    def validate_budget(self, budget: str):
-        Budget(budget)
-        return True
-
     #pylint: disable=too-many-arguments, too-many-positional-arguments
     def register_project(self,
                          company_cif: str,
@@ -81,14 +51,6 @@ class EnterpriseManager:
                          budget: str):
 
         """registers a new project"""
-
-        # Validations:
-        self.validate_cif(company_cif)
-        self.validate_acronym(project_acronym)
-        self.validate_description(project_description)
-        self.validate_department(department)
-        self.validate_budget(budget)
-        self.validate_starting_date(date)
 
         new_project = EnterpriseProject(company_cif=company_cif,
                                         project_acronym=project_acronym,

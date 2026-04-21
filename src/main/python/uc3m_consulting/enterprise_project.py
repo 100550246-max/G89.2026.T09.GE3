@@ -2,6 +2,12 @@
 import hashlib
 import json
 from datetime import datetime, timezone
+from uc3m_consulting.attributes.cif import Cif
+from uc3m_consulting.attributes.acronym import Acronym
+from uc3m_consulting.attributes.description import Description
+from uc3m_consulting.attributes.department import Department
+from uc3m_consulting.attributes.budget import Budget
+from uc3m_consulting.attributes.starting_date import StartingDate
 
 class EnterpriseProject:
     """Class representing a project"""
@@ -13,6 +19,16 @@ class EnterpriseProject:
                  department: str,
                  starting_date: str,
                  project_budget: float):
+
+        # Autovalidation whe created
+        Cif(company_cif)
+        Acronym(project_acronym)
+        Description(project_description)
+        Department(department)
+        StartingDate(starting_date)
+        Budget(project_budget)
+
+        # Variable assignment
         self.__company_cif = company_cif
         self.__project_description = project_description
         self.__project_achronym = project_acronym
