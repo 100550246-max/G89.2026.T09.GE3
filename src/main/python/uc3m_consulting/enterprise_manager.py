@@ -10,11 +10,10 @@ from uc3m_consulting.attributes.department import Department
 from uc3m_consulting.attributes.description import Description
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
-from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
-                                                       TEST_DOCUMENTS_STORE_FILE,
-                                                       TEST_NUMDOCS_STORE_FILE)
 from uc3m_consulting.project_document import ProjectDocument
-from uc3m_consulting.storage.json_store import JsonStore
+from uc3m_consulting.storage.project_json_store import ProjectJsonStore
+from uc3m_consulting.storage.document_json_store import DocumentJsonStore
+from uc3m_consulting.storage.report_json_store import ReportJsonStore
 
 
 class EnterpriseManager:
@@ -40,16 +39,15 @@ class EnterpriseManager:
                                         starting_date=date,
                                         project_budget=budget)
 
-        json_store = JsonStore()
-        transfer_list = json_store.load_list(PROJECTS_STORE_FILE, empty_if_missing=True)
+        store = ProjectJsonStore()
+        transfer_list = store.load_list(empty_if_missing=True)
 
         for transfer_item in transfer_list:
             if transfer_item == new_project.to_json():
                 raise EnterpriseManagementException("Duplicated project in projects list")
 
         transfer_list.append(new_project.to_json())
-
-        json_store.save_list(PROJECTS_STORE_FILE, transfer_list)
+        store.save_list(transfer_list)
 
         return new_project.project_id
 
@@ -82,8 +80,8 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Invalid date format") from ex
 
         # open documents
-        json_store = JsonStore()
-        document_list = json_store.load_list(TEST_DOCUMENTS_STORE_FILE, empty_if_missing=False)
+        doc_store = DocumentJsonStore()
+        document_list = doc_store.load_list(empty_if_missing=False)
 
 
         documents_count = 0
@@ -116,9 +114,9 @@ class EnterpriseManager:
              "Numfiles": documents_count
              }
 
-        report_list = json_store.load_list(TEST_NUMDOCS_STORE_FILE, empty_if_missing=True)
+        report_store = ReportJsonStore()
+        report_list = report_store.load_list(empty_if_missing=True)
         report_list.append(report_data)
-
-        json_store.save_list(TEST_NUMDOCS_STORE_FILE, report_list)
+        report_store.save_list(report_list)
 
         return documents_count
