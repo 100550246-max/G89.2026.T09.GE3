@@ -72,6 +72,28 @@ class EnterpriseManager:
         if not description_pattern.fullmatch(project_description):
             raise EnterpriseManagementException("Invalid description format")
 
+    def validate_department(self, department: str):
+        """Validates the department name."""
+        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
+        if not department_pattern.fullmatch(department):
+            raise EnterpriseManagementException("Invalid department")
+
+    def validate_budget(self, budget: str):
+        """Validates the project budget amount and format."""
+        try:
+            float_budget = float(budget)
+        except ValueError as exc:
+            raise EnterpriseManagementException("Invalid budget amount") from exc
+
+        float_budget_string = str(float_budget)
+        if '.' in float_budget_string:
+            decimals = len(float_budget_string.split('.')[1])
+            if decimals > 2:
+                raise EnterpriseManagementException("Invalid budget amount")
+
+        if float_budget < 50000 or float_budget > 1000000:
+            raise EnterpriseManagementException("Invalid budget amount")
+
 
     #pylint: disable=too-many-arguments, too-many-positional-arguments
     def register_project(self,
@@ -88,28 +110,9 @@ class EnterpriseManager:
         Cif(company_cif)
         self.validate_acronym(project_acronym)
         self.validate_description(project_description)
-
-        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
-        valid_department = department_pattern.fullmatch(department)
-        if not valid_department:
-            raise EnterpriseManagementException("Invalid department")
-
+        self.validate_department(department)
+        self.validate_budget(budget)
         self.validate_starting_date(date)
-
-        try:
-            float_budget  = float(budget)
-        except ValueError as exc:
-            raise EnterpriseManagementException("Invalid budget amount") from exc
-
-        float_budget_string = str(float_budget)
-        if '.' in float_budget_string:
-            decimals = len(float_budget_string.split('.')[1])
-            if decimals > 2:
-                raise EnterpriseManagementException("Invalid budget amount")
-
-        if float_budget < 50000 or float_budget > 1000000:
-            raise EnterpriseManagementException("Invalid budget amount")
-
 
         new_project = EnterpriseProject(company_cif=company_cif,
                                         project_acronym=project_acronym,
