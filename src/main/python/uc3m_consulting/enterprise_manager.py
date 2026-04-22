@@ -14,6 +14,7 @@ from uc3m_consulting.project_document import ProjectDocument
 from uc3m_consulting.storage.project_json_store import ProjectJsonStore
 from uc3m_consulting.storage.document_json_store import DocumentJsonStore
 from uc3m_consulting.storage.report_json_store import ReportJsonStore
+from uc3m_consulting.attributes.query_date import QueryDate
 
 
 class EnterpriseManager:
@@ -61,68 +62,42 @@ class EnterpriseManager:
 
         return new_project.project_id
 
+    def _is_document_valid(self, document: dict) -> bool:
+        """Checks if the document cryptographic signature is valid"""
+        register_timestamp = document["register_date"]
+        document_datetime = datetime.fromtimestamp(register_timestamp, tz=timezone.utc)
 
-    def find_docs(self, date_str):
-        """
-        Generates a JSON report counting valid documents for a specific date.
+        with freeze_time(document_datetime):
+            project_document = ProjectDocument(document["project_id"], document["file_name"])
+            if project_document.document_signature == document["document_signature"]:
+                return True
+            raise EnterpriseManagementException("Inconsistent document signature")
 
-        Checks cryptographic hashes and timestamps to ensure historical data integrity.
-        Saves the output to 'resultado.json'.
+    def find_docs(self, date_str: str):
+        """Generates a JSON report counting valid documents for a specific date."""
+        QueryDate(date_str)
 
-        Args:
-            date_str (str): date to query.
-
-        Returns:
-            number of documents found if report is successfully generated and saved.
-
-        Raises:
-            EnterpriseManagementException: On invalid date, file IO errors,
-                missing data, or cryptographic integrity failure.
-        """
-        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
-        valid_date = date_pattern.fullmatch(date_str)
-        if not valid_date:
-            raise EnterpriseManagementException("Invalid date format")
-
-        try:
-            my_date = datetime.strptime(date_str, "%d/%m/%Y").date()
-        except ValueError as ex:
-            raise EnterpriseManagementException("Invalid date format") from ex
-
-        # open documents
         doc_store = DocumentJsonStore()
         document_list = doc_store.load_list(empty_if_missing=False)
 
-
         documents_count = 0
 
-        # loop to find
         for document in document_list:
             register_timestamp = document["register_date"]
-
-            # string conversion for easy match
             document_date_str = datetime.fromtimestamp(register_timestamp).strftime("%d/%m/%Y")
 
             if document_date_str == date_str:
-                document_datetime = datetime.fromtimestamp(register_timestamp, tz=timezone.utc)
-                with freeze_time(document_datetime):
-                    # check the project id (thanks to freezetime)
-                    # if project_id are different then the data has been
-                    #manipulated
-                    project_document = ProjectDocument(document["project_id"], document["file_name"])
-                    if project_document.document_signature == document["document_signature"]:
-                        documents_count = documents_count + 1
-                    else:
-                        raise EnterpriseManagementException("Inconsistent document signature")
+                if self._is_document_valid(document):
+                    documents_count += 1
 
         if documents_count == 0:
             raise EnterpriseManagementException("No documents found")
-        # prepare json text
-        current_timestamp = datetime.now(timezone.utc).timestamp()
-        report_data = {"Querydate":  date_str,
-             "ReportDate": current_timestamp,
-             "Numfiles": documents_count
-             }
+
+        report_data = {
+            "Querydate": date_str,
+            "ReportDate": datetime.now(timezone.utc).timestamp(),
+            "Numfiles": documents_count
+        }
 
         report_store = ReportJsonStore()
         report_list = report_store.load_list(empty_if_missing=True)
