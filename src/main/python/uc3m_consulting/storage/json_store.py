@@ -1,3 +1,6 @@
+"""
+Module for the json_store class
+"""
 import json
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 

@@ -1,3 +1,6 @@
+"""
+Module for the project_json_store class
+"""
 from uc3m_consulting.storage.json_store import JsonStore
 from uc3m_consulting.enterprise_manager_config import PROJECTS_STORE_FILE
 
