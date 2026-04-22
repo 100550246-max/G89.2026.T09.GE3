@@ -1,13 +1,7 @@
 """Module """
-import re
-import json
-
 from datetime import datetime, timezone
 from freezegun import freeze_time
 
-from uc3m_consulting.attributes.acronym import Acronym
-from uc3m_consulting.attributes.department import Department
-from uc3m_consulting.attributes.description import Description
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.project_document import ProjectDocument
