@@ -18,6 +18,16 @@ from uc3m_consulting.storage.report_json_store import ReportJsonStore
 
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
+
+    # 1. Variable estática y privada para guardar la única instancia
+    __instance = None
+
+    # 2. Control de creación de la instancia
+    def __new__(cls):
+        if cls.__instance is None:
+            cls.__instance = super(EnterpriseManager, cls).__new__(cls)
+        return cls.__instance
+
     def __init__(self):
         pass
 
